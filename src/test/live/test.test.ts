@@ -12,10 +12,10 @@ function myLambdaFunction(): number {
 describe("DNS Server Tests", () => {
     it("test dns", async () => {
         await startCLIServer();
-        await fitzy(
-            "https://ksgtgllggj.execute-api.us-east-1.amazonaws.com/dev/hello-world",
-            helloWorld
-        );
-        console.log("registerArray:", registerArray);
+            await fitzy(
+                "https://ksgtgllggj.execute-api.us-east-1.amazonaws.com/dev/hello-world",
+                helloWorld
+            );
+            console.log("registerArray:", registerArray);
     });
 });

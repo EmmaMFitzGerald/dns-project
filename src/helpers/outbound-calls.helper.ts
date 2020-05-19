@@ -11,7 +11,7 @@ import makeRequest from "./fetch.helper";
 export default async function registerWithCli(
     clientConfig: ClientConfig
 ): Promise<any> {
-    return makeRequest("http://localhost:80/register", {
+    return makeRequest("http://localhost:443/register", {
         apiGatewayUrl: clientConfig.apiGatewayUrl,
         localPortNumber: clientConfig.localPortNumber,
     });
