@@ -7,75 +7,66 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable eqeqeq */
+/* eslint-disable import/extensions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-var dns = __importStar(require("native-dns"));
-var async = __importStar(require("async"));
-var authority = { address: "8.8.8.8", port: 53, type: "udp" };
-var clientConfig;
+const dns = __importStar(require("native-dns"));
+const async = __importStar(require("async"));
+const reg_helper_1 = require("./reg.helper");
+const authority = { address: "8.8.8.8", port: 53, type: "udp" };
 function proxy(question, response, cb) {
     console.log("proxying", question.name);
-    var str = clientConfig.apiGatewayUrl;
-    var cutString = str.substring(11, str.length);
-    console.log("Split", cutString);
-    if (cutString === question.name) {
-        var request = dns.Request({
-            question: question,
-            server: {
-                address: "127.0.0.1",
-                port: clientConfig.localPortNumber,
-                type: "udp",
-            },
-            timeout: 1000,
-        });
-        request.on("message", function (err, msg) {
-            msg.answer.forEach(function (a) { return response.answer.push(a); });
-        });
-        request.on("end", cb);
-        request.send();
-    }
-    else {
-        var request = dns.Request({
-            question: question,
-            server: authority,
-            timeout: 1000,
-        });
-        request.on("message", function (err, msg) {
-            msg.answer.forEach(function (a) { return response.answer.push(a); });
-        });
-        request.on("end", cb);
-        request.send();
-    }
-    // when we get answers,
+    // console.log("registerArray in proxy", registerArray);
+    const request = dns.Request({
+        question,
+        server: authority,
+        timeout: 1000,
+    });
+    request.on("message", (err, msg) => {
+        msg.answer.forEach((a) => response.answer.push(a));
+    });
+    request.on("end", cb);
+    request.send();
 }
 function handleRequest(request, response) {
-    console.log("request from", request.address.address, "for", request.question[0].name);
-    console.log("REQ.QUES", request.question);
-    // console.log("clientConfig", clientConfig);
-    var f = []; // array of functions
-    // proxy all questions
-    // since proxying is asynchronous, store all callbacks
-    request.question.forEach(function (question) {
-        // console.log("ques:", question, "resp", response);
-        f.push(function (cb) { return proxy(question, response, cb); });
+    // console.log(
+    //     "request from",
+    //     request.address.address,
+    //     "for",
+    //     request.question[0].name
+    // );
+    console.log("reg array", reg_helper_1.registerArray);
+    console.log("req.ques", request.question);
+    const f = []; // array of functions
+    request.question.forEach((question) => {
+        reg_helper_1.registerArray.forEach((clientConfig) => {
+            const newUrl = new URL(clientConfig.apiGatewayUrl);
+            const myUrl = newUrl.host + newUrl.pathname;
+            if (myUrl == question.name || newUrl.href == question.name) {
+                const override = {};
+                override.name = question.name;
+                override.address = "127.0.0.1";
+                override.ttl = 600;
+                override.port = clientConfig.localPortNumber;
+                response.answer.push(dns.A(override));
+            }
+            else {
+                f.push((cb) => proxy(question, response, cb));
+            }
+        });
     });
-    // do the proxying in parallel
-    // when done, respond to the request by sending the response
-    async.parallel(f, function () {
+    async.parallel(f, () => {
+        console.log(response.answer[0].address);
         response.send();
     });
 }
-function startDnsServer(clientConfigur) {
-    // console.log("clientConfig", clientConfig);
-    clientConfig = clientConfigur;
-    var server = dns.createServer();
-    server.on("listening", function () {
-        return console.log("server listening on", server.address());
-    });
-    server.on("close", function () { return console.log("server closed", server.address()); });
-    server.on("error", function (err, buff, req, res) {
-        return console.error(err.stack);
-    });
-    server.on("socketError", function (err, socket) { return console.error(err); });
+exports.handleRequest = handleRequest;
+function startDnsServer() {
+    const server = dns.createServer();
+    server.on("listening", () => console.log("server listening on", server.address()));
+    server.on("close", () => console.log("server closed", server.address()));
+    server.on("error", (err, buff, req, res) => console.error(err.stack));
+    server.on("socketError", (err, socket) => console.error(err));
     server.on("request", handleRequest);
     server.serve(53);
 }

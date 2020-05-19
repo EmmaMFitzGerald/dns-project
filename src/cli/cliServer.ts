@@ -2,12 +2,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import express from "express";
 import bodyParser from "body-parser";
-// import track from "../helpers/register.helper";
-// import marshallCall from "../helpers/inbound-calls.helper";
-// import { registerWithCli } from "../helpers/outbound-calls.helper";
+import { track } from "../helpers/reg.helper";
+import marshallCall from "../helpers/inbound-calls.helper";
+
 export default function startCLIServer(): void {
     const cliApp = express();
-
     cliApp.use(bodyParser.json());
     cliApp.use(
         bodyParser.urlencoded({
@@ -16,13 +15,31 @@ export default function startCLIServer(): void {
     );
 
     cliApp.listen(80, () => console.log("Example app listening on port 80!"));
-    cliApp.get("/", (_req: any, res: any) =>
-        res.send({ "this is cli server": "testing" })
-    );
-
+    let portNumber: number;
     // this receives a clientConfig from outbound calls,
     cliApp.post("/register", (req: any, res: any) => {
-        console.log("in the register", req.body); // req.body is a clientConfig object
-        // track(req.body);
+        portNumber = req.body.localPortNumber;
+        track(req.body);
+    });
+
+    cliApp.get("/", (req: any, res: any) => {
+        console.log("req.body", req.body);
+        const { httpMethod } = req.body.input;
+        const portNum = portNumber;
+        let resp;
+        if (req.body.input.body && req.body.input.queryStringParameters) {
+            resp = {
+                ...req.body.input.queryStringParameters,
+                ...req.body.input.body,
+            };
+        } else if (
+            req.body.input.body &&
+            req.body.input.queryStringParameters === null
+        ) {
+            resp = req.body.input.body;
+        } else {
+            resp = req.body.input.queryStringParameter;
+        }
+        marshallCall(portNum, httpMethod, resp);
     });
 }

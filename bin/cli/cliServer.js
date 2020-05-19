@@ -5,25 +5,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable import/extensions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-var express_1 = __importDefault(require("express"));
-var body_parser_1 = __importDefault(require("body-parser"));
-// import track from "../helpers/register.helper";
-// import marshallCall from "../helpers/inbound-calls.helper";
-// import { registerWithCli } from "../helpers/outbound-calls.helper";
+const express_1 = __importDefault(require("express"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const reg_helper_1 = require("../helpers/reg.helper");
 function startCLIServer() {
-    var cliApp = express_1.default();
+    const cliApp = express_1.default();
     cliApp.use(body_parser_1.default.json());
     cliApp.use(body_parser_1.default.urlencoded({
         extended: true,
     }));
-    cliApp.listen(80, function () { return console.log("Example app listening on port 80!"); });
-    cliApp.get("/", function (_req, res) {
-        return res.send({ "this is cli server": "testing" });
-    });
+    cliApp.listen(80, () => console.log("Example app listening on port 80!"));
+    cliApp.get("/", (_req, res) => res.send({ "this is cli server": "testing" }));
     // this receives a clientConfig from outbound calls,
-    cliApp.post("/register", function (req, res) {
-        console.log("in the register", req.body); // req.body is a clientConfig object
-        // track(req.body);
+    cliApp.post("/register", (req, res) => {
+        reg_helper_1.track(req.body);
     });
 }
 exports.default = startCLIServer;

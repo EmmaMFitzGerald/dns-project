@@ -1,1 +1,1 @@
-export default function marshallCall(portNum: number, httpMethod: string, reqBody: object): Promise<Request>;
+export default function marshallCall(portNum: number | undefined, httpMethod: string, reqBody: object): Promise<Request>;

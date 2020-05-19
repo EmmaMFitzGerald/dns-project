@@ -2,8 +2,9 @@
 import express from "express";
 
 import bodyParser from "body-parser";
-
-// import { register } from "../helpers/outbound-calls.helper";
+import marshallCall from "../helpers/inbound-calls.helper";
+import { lookup } from "../helpers/reg.helper";
+import { helloWorld } from "../lambda";
 
 let importApp: express.Application;
 
@@ -21,17 +22,21 @@ export default async function startImportServer(
         console.log(`Example app listening on port ${portNumber}!`)
     );
 
-    importApp.post("/", (req: any, res: any) => {
-        // call lambda function here
-        // post result to cli
+    importApp.get("/", async (req: any, res: any) => {
+        const event = {
+            body: "",
+            headers: {},
+            httpMethod: "GET",
+            isBase64Encoded: false,
+            path: "",
+            pathParameters: {},
+            queryStringParameters: {},
+            stageVariables: {},
+            requestContext: {},
+            resource: "",
+        };
+        const response = await helloWorld(event);
+        console.log("in / route", response);
+        return response;
     });
 }
-
-// importApp.post("/register", (req: any, res: any) => {
-//     // http://localhost/register
-//     const array = register(req.body);
-//     console.log("array", array);
-//     res.json({
-//         array,
-//     });
-// });

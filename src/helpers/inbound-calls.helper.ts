@@ -2,7 +2,7 @@
 import fetch from "node-fetch";
 
 export default function marshallCall(
-    portNum: number,
+    portNum: number | undefined,
     httpMethod: string,
     reqBody: object
 ): Promise<Request> {

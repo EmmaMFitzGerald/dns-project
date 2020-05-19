@@ -1,2 +1,2 @@
-import ClientConfig from "../models/client-config.model";
-export default function startDnsServer(clientConfigur: ClientConfig): any;
+export declare function handleRequest(request: any, response: any): void;
+export default function startDnsServer(): any;

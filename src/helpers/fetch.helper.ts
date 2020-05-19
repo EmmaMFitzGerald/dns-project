@@ -5,7 +5,6 @@ export default async function makeRequest(
     url: string,
     data: object
 ): Promise<Request> {
-    console.log("data in makeRequest:", data);
     const config = {
         method: "POST",
         headers: {

@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Inbound calls are from the CLI server to the Import server ////take any req object and client config that has been matched by the url
-var node_fetch_1 = __importDefault(require("node-fetch"));
+const node_fetch_1 = __importDefault(require("node-fetch"));
 function marshallCall(portNum, httpMethod, reqBody) {
-    var config = {
+    const config = {
         method: httpMethod,
         headers: {
             Accept: "application/json",
@@ -14,7 +14,7 @@ function marshallCall(portNum, httpMethod, reqBody) {
         },
         body: reqBody,
     };
-    return node_fetch_1.default("localhost:" + portNum, config).then(function (response) {
+    return node_fetch_1.default(`localhost:${portNum}`, config).then((response) => {
         console.log("response", response);
         return response.json();
     });
