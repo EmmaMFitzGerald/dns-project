@@ -26,8 +26,8 @@ export default async function fitzy(
     lambdaFunction: any
 ): Promise<any> {
     const portNumber = await getAvailablePortNumber();
-    await startImportServer(portNumber);
+    await startImportServer(portNumber, lambdaFunction);
     const clientConfig = new ClientConfig(apiGatewayUrl, portNumber);
     registerWithCli(clientConfig);
-    await startDnsServer();
+    // await startDnsServer();
 }

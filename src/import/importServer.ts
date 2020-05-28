@@ -3,13 +3,12 @@ import express from "express";
 
 import bodyParser from "body-parser";
 import marshallCall from "../helpers/inbound-calls.helper";
-import { lookup } from "../helpers/reg.helper";
-import { helloWorld } from "../lambda";
 
 let importApp: express.Application;
 
 export default async function startImportServer(
-    portNumber: number
+    portNumber: number,
+    lambdaFunction: any
 ): Promise<any> {
     importApp = express();
     importApp.use(bodyParser.json());
@@ -23,20 +22,10 @@ export default async function startImportServer(
     );
 
     importApp.get("/", async (req: any, res: any) => {
-        const event = {
-            body: "",
-            headers: {},
-            httpMethod: "GET",
-            isBase64Encoded: false,
-            path: "",
-            pathParameters: {},
-            queryStringParameters: {},
-            stageVariables: {},
-            requestContext: {},
-            resource: "",
-        };
-        const response = await helloWorld(event);
-        console.log("in / route", response);
-        return response;
+        // lambdaFunction could either be an asynchronous function/promise or not
+        // We need to figure iout if we shoudl await  or not
+        console.log("reached the import server route");
+        const response = await lambdaFunction();
+        res.json(response);
     });
 }
