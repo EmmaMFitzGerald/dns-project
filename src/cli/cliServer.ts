@@ -5,6 +5,8 @@ import https from "https";
 import fs from "fs";
 import { track } from "../helpers/reg.helper";
 
+let httpServer: any;
+
 export default function startCLIServer(): void {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     const cliApp = express();
@@ -15,7 +17,7 @@ export default function startCLIServer(): void {
         })
     );
 
-    https
+    httpServer = https
         .createServer(
             {
                 key: fs.readFileSync("./server.key"),
@@ -40,6 +42,6 @@ export default function startCLIServer(): void {
 export function shutdown(): void {
     // Function here to shutdown cliApp and the httpServer
     // Primary to be called from test
-
-    throw new Error("Not yet implemented");
+    httpServer.close();
+    // throw new Error("Not yet implemented");
 }

@@ -46,7 +46,7 @@ export function handleRequest(request: any, response: any): void {
         response.answer.push(dns.A(override));
     } else {
         console.log("going to have to proxy this", request.question[0].name);
-        f.push((cb: any) => proxy(request.question[0].name, response, cb));
+        f.push((cb: any) => proxy(request.question[0], response, cb));
     }
 
     // request.question.forEach((question: any) => {
@@ -82,8 +82,8 @@ export function handleRequest(request: any, response: any): void {
     // });
 
     async.parallel(f, () => {
-        console.log("response in async.parallel", response.answer[0].name);
-        console.log(response.answer[0].address);
+        // console.log("response in async.parallel", response.answer[0].name);
+        // console.log(response.answer[0].address);
         response.send();
     });
 }
