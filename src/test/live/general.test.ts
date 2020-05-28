@@ -77,7 +77,7 @@ describe("Lambda function tests", () => {
             });
         });
 
-        console.log("Ready to start DNS server.");
+        console.log("Ready to start DNS server...");
 
         await startDnsServer((domainName: string, ipAddress: string) => {
             console.log("domainName:", domainName);
