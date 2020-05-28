@@ -42,10 +42,12 @@
         }
     },
     "rules": {
-        "indent": ["error", 4],
+        "indent": [
+            "error",
+            4
+        ],
+        "import/extensions": "off",
         "no-console": "off",
         "no-param-reassign": "warn"
- }
- }
- 
- 
+    }
+}
