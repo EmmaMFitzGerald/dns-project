@@ -1,11 +1,13 @@
-import { describe, it } from "mocha";
+import { describe, before, it } from "mocha";
 import { expect, assert } from "chai";
 
+import * as request from "request";
+import { exec } from "child_process";
 import startCLIServer, { shutdown } from "../../cli/cliServer";
 import fitzy from "../../fitzy";
 import makeGetRequest from "../../helpers/makeGetRequest.helper";
 import checkRespStatus from "../../helpers/checkRespStatus.helper";
-import startDnsServer from "../../helpers/dns.helper";
+import startDnsServer, { shutdownDnsServer } from "../../helpers/dns.helper";
 
 async function helloWorld(): Promise<object> {
     return { message: "Hello World" };
@@ -58,33 +60,52 @@ describe("Lambda function tests", () => {
         assert.deepEqual(importResponse, { message: "Hello World" });
     });
 
-    it("dns is intercepting", async () => {
-        // We should call startCLIServer here....
-        startCLIServer();
+    it("DNS is intercepting", async () => {
+        const urlToTest =
+            "https://ksgtgllggj.execute-api.us-east-1.amazonaws.com";
 
-        try {
-            const urlToTest =
-                "https://ksgtgllggj.execute-api.us-east-1.amazonaws.com";
+        console.log("Flushing cache.");
 
-            await fitzy(urlToTest, helloWorld);
-
-            // start dns server
-            // Callback that fires with intercepted domains
-            await startDnsServer((domainName: string, ipAddress: string) => {
-                console.log("domainName:", domainName);
-                console.log("ipAddress", ipAddress);
-                if (domainName === urlToTest && ipAddress === "127.0.0.1") {
-                    console.log("Domain successfully intercepted");
+        await new Promise((resolve, reject) => {
+            exec("dscacheutil -flushcache", (err: any) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    console.log("DNS Cache flushed");
+                    resolve();
                 }
             });
+        });
 
-            const response: object = await makeGetRequest(urlToTest);
+        console.log("Ready to start DNS server.");
+
+        await startDnsServer((domainName: string, ipAddress: string) => {
+            console.log("domainName:", domainName);
+            console.log("ipAddress", ipAddress);
+            if (domainName === urlToTest && ipAddress === "127.0.0.1") {
+                console.log("Domain successfully intercepted");
+            }
+        });
+
+        await startCLIServer();
+
+        try {
+            await fitzy(urlToTest, helloWorld);
+
+            console.log("Making request!");
+            const response = await makeGetRequest(urlToTest);
 
             console.log("response", response);
             assert.deepEqual(response, { message: "Hello World" });
         } catch (err) {
-            // And call shutdown() here
-            shutdown();
+            console.error(err);
         }
-    });
+
+        try {
+            shutdownDnsServer();
+            await shutdown();
+        } catch (err) {
+            console.warn("Unable to shutdown CLI server");
+        }
+    }).timeout(10000);
 });

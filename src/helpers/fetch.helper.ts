@@ -13,9 +13,9 @@ export default async function makeRequest(
         },
         body: JSON.stringify(data),
     };
+
     return fetch(url, config).then(
         (response: any): Promise<any> => {
-            console.log("response", response);
             return response.json();
         }
     );

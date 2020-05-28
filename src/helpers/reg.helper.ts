@@ -1,18 +1,18 @@
+import { URL } from "url";
 import ClientConfig from "../models/client-config.model";
 
-export const registerArray: Array<ClientConfig> = [];
+export const registerArray: Array<{
+    hostName: string;
+    localPortNumber: number;
+}> = [];
 
-export function track(apiUrlPortNumber: ClientConfig): void {
-    registerArray.push(apiUrlPortNumber);
-    console.log("regArray in regHelper", registerArray);
-}
+export function track(config: ClientConfig): void {
+    const suppliedUrl = new URL(config.apiGatewayUrl);
 
-export function lookup(url: string): number | undefined {
-    const foundClientConfig = registerArray.find(
-        (object) => object.apiGatewayUrl === url
-    );
-    if (foundClientConfig) {
-        return foundClientConfig.localPortNumber;
-    }
-    return undefined;
+    registerArray.push({
+        hostName: suppliedUrl.hostname,
+        localPortNumber: config.localPortNumber,
+    });
+
+    console.log("registered domains is now:", registerArray);
 }

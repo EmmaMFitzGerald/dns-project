@@ -1,4 +1,4 @@
-import portscanner from "portscanner";
+import * as portscanner from "portscanner";
 
 export default async function getAvailablePortNumber(): Promise<number> {
     // we need a promise

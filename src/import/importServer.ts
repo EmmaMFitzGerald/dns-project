@@ -1,15 +1,15 @@
 /* eslint-disable import/extensions */
-import express from "express";
+import * as express from "express";
 
-import bodyParser from "body-parser";
-import marshallCall from "../helpers/inbound-calls.helper";
+import * as bodyParser from "body-parser";
+// import marshallCall from "../helpers/inbound-calls.helper";
 
 let importApp: express.Application;
 
 export default async function startImportServer(
     portNumber: number,
     lambdaFunction: any
-): Promise<any> {
+): Promise<void> {
     importApp = express();
     importApp.use(bodyParser.json());
     importApp.use(
@@ -17,9 +17,8 @@ export default async function startImportServer(
             extended: true,
         })
     );
-    importApp.listen(portNumber, () =>
-        console.log(`Example app listening on port ${portNumber}!`)
-    );
+
+    importApp.listen(portNumber);
 
     importApp.get("/", async (req: any, res: any) => {
         // lambdaFunction could either be an asynchronous function/promise or not
